@@ -15,7 +15,25 @@ def encrypt_caesar(plaintext: str, shift: int = 3) -> str:
     ''
     """
     ciphertext = ""
-    # PUT YOUR CODE HERE
+
+    s_amount = 26
+    is_case_changed = False
+    for s in plaintext:
+        if ord('A') <= ord(s) <= ord('Z') or ord('a') <= ord(s) <= ord('z'):
+            if s.islower():
+                s = s.upper()
+                is_case_changed = True
+
+            if ord(s) + shift > ord('Z') or ord(s) + shift < ord('A'):
+                new_s = chr(ord(s) + shift - s_amount * (shift // abs(shift)))
+            else:
+                new_s = chr(ord(s) + shift)
+
+            if is_case_changed:
+                new_s = new_s.lower()
+                is_case_changed = False
+            s = new_s
+        ciphertext += s
     return ciphertext
 
 
@@ -33,7 +51,9 @@ def decrypt_caesar(ciphertext: str, shift: int = 3) -> str:
     ''
     """
     plaintext = ""
-    # PUT YOUR CODE HERE
+
+    plaintext = encrypt_caesar(ciphertext, -shift)
+
     return plaintext
 
 
