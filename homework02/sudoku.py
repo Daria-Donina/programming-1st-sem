@@ -1,6 +1,7 @@
 from typing import Tuple, List, Set, Optional
 
 
+# вроде и так читает
 def read_sudoku(filename: str) -> List[List[str]]:
     """ Прочитать Судоку из указанного файла """
     digits = [c for c in open(filename).read() if c in '123456789.']
@@ -28,6 +29,7 @@ def group(values: List[str], n: int) -> List[List[str]]:
     >>> group([1,2,3,4,5,6,7,8,9], 3)
     [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     """
+    return [values[i*n:(i*n + n)] for i in range(n)]
     pass
 
 
@@ -41,6 +43,7 @@ def get_row(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
     >>> get_row([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']], (2, 0))
     ['.', '8', '9']
     """
+    return grid[pos[0]]
     pass
 
 
@@ -54,6 +57,7 @@ def get_col(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
     >>> get_col([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']], (0, 2))
     ['3', '6', '9']
     """
+    return [elem[pos[1]] for elem in grid]
     pass
 
 
@@ -68,6 +72,18 @@ def get_block(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
     >>> get_block(grid, (8, 8))
     ['2', '8', '.', '.', '.', '5', '.', '7', '9']
     """
+    row_to_start = pos[0] - pos[0] % 3
+    col_to_start = pos[1] - pos[1] % 3
+
+    rows = grid[row_to_start:row_to_start + 3]
+    cols = [row[col_to_start:col_to_start + 3] for row in rows]
+
+    list = []
+    for i in cols:
+        for j in i:
+            list.append(j)
+
+    return list
     pass
 
 
