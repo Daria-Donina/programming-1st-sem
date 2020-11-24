@@ -1,4 +1,5 @@
 from typing import Tuple, List, Set, Optional
+import random
 
 
 # вроде и так читает
@@ -168,18 +169,18 @@ def check_solution(solution: List[List[str]]) -> bool:
     """
     for i in range(9):
         numbers = set(get_row(solution, (i, 0)))
-        if len(numbers) != 9:
+        if numbers != set('123456789'):
             return False
 
     for i in range(9):
         numbers = set(get_col(solution, (0, i)))
-        if len(numbers) != 9:
+        if numbers != set('123456789'):
             return False
 
     for i in range(3):
         for j in range(3):
             numbers = set(get_block(solution, (i * 3, j * 3)))
-            if len(numbers) != 9:
+            if numbers != set('123456789'):
                 return False
 
     return True
@@ -208,6 +209,19 @@ def generate_sudoku(N: int) -> List[List[str]]:
     >>> check_solution(solution)
     True
     """
+    empty = [['.'] * 9 for i in range(9)]
+    grid = solve(empty)
+
+    for i in range(81 - min(N, 81)):
+        while True:
+            row = random.randint(0, 8)
+            col = random.randint(0, 8)
+
+            if grid[row][col] != '.':
+                grid[row][col] = '.'
+                break
+
+    return grid
     pass
 
 
