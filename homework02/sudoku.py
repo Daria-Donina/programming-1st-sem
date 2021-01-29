@@ -1,6 +1,8 @@
 from typing import Tuple, List, Set, Optional
+import random
 
 
+# вроде и так читает
 def read_sudoku(filename: str) -> List[List[str]]:
     """ Прочитать Судоку из указанного файла """
     digits = [c for c in open(filename).read() if c in '123456789.']
@@ -28,6 +30,7 @@ def group(values: List[str], n: int) -> List[List[str]]:
     >>> group([1,2,3,4,5,6,7,8,9], 3)
     [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     """
+    return [values[i * n:(i * n + n)] for i in range(n)]
     pass
 
 
@@ -41,6 +44,7 @@ def get_row(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
     >>> get_row([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']], (2, 0))
     ['.', '8', '9']
     """
+    return grid[pos[0]]
     pass
 
 
@@ -54,6 +58,7 @@ def get_col(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
     >>> get_col([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']], (0, 2))
     ['3', '6', '9']
     """
+    return [elem[pos[1]] for elem in grid]
     pass
 
 
@@ -68,6 +73,18 @@ def get_block(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
     >>> get_block(grid, (8, 8))
     ['2', '8', '.', '.', '.', '5', '.', '7', '9']
     """
+    row_to_start = pos[0] - pos[0] % 3
+    col_to_start = pos[1] - pos[1] % 3
+
+    rows = grid[row_to_start:row_to_start + 3]
+    cols = [row[col_to_start:col_to_start + 3] for row in rows]
+
+    list = []
+    for i in cols:
+        for j in i:
+            list.append(j)
+
+    return list
     pass
 
 
@@ -81,7 +98,17 @@ def find_empty_positions(grid: List[List[str]]) -> Optional[Tuple[int, int]]:
     >>> find_empty_positions([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']])
     (2, 0)
     """
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            if grid[i][j] == '.':
+                return i, j
     pass
+
+
+def remove_common_values(list: List, values: Set):
+    for number in list:
+        if number in values:
+            values.remove(number)
 
 
 def find_possible_values(grid: List[List[str]], pos: Tuple[int, int]) -> Set[str]:
@@ -95,11 +122,17 @@ def find_possible_values(grid: List[List[str]], pos: Tuple[int, int]) -> Set[str
     >>> values == {'2', '5', '9'}
     True
     """
+    values = set('123456789')
+
+    remove_common_values(get_row(grid, pos), values)
+    remove_common_values(get_col(grid, pos), values)
+    remove_common_values(get_block(grid, pos), values)
+
+    return values
     pass
 
 
 def solve(grid: List[List[str]]) -> Optional[List[List[str]]]:
-    """ Решение пазла, заданного в grid """
     """ Как решать Судоку?
         1. Найти свободную позицию
         2. Найти все возможные значения, которые могут находиться на этой позиции
@@ -111,12 +144,46 @@ def solve(grid: List[List[str]]) -> Optional[List[List[str]]]:
     >>> solve(grid)
     [['5', '3', '4', '6', '7', '8', '9', '1', '2'], ['6', '7', '2', '1', '9', '5', '3', '4', '8'], ['1', '9', '8', '3', '4', '2', '5', '6', '7'], ['8', '5', '9', '7', '6', '1', '4', '2', '3'], ['4', '2', '6', '8', '5', '3', '7', '9', '1'], ['7', '1', '3', '9', '2', '4', '8', '5', '6'], ['9', '6', '1', '5', '3', '7', '2', '8', '4'], ['2', '8', '7', '4', '1', '9', '6', '3', '5'], ['3', '4', '5', '2', '8', '6', '1', '7', '9']]
     """
+    pos = find_empty_positions(grid)
+    if not pos:
+        return grid
+    else:
+        possible_values = find_possible_values(grid, pos)
+
+        for value in possible_values:
+            grid[pos[0]][pos[1]] = value
+            result = solve(grid)
+            if result:
+                return result
+        grid[pos[0]][pos[1]] = '.'
+        return None
     pass
 
 
 def check_solution(solution: List[List[str]]) -> bool:
-    """ Если решение solution верно, то вернуть True, в противном случае False """
-    # TODO: Add doctests with bad puzzles
+    """ Если решение solution верно, то вернуть True, в противном случае False
+    >>> grid = read_sudoku('puzzle1.txt')
+    >>> solution = solve(grid)
+    >>> check_solution(solution)
+    True
+    """
+    for i in range(9):
+        numbers = set(get_row(solution, (i, 0)))
+        if numbers != set('123456789'):
+            return False
+
+    for i in range(9):
+        numbers = set(get_col(solution, (0, i)))
+        if numbers != set('123456789'):
+            return False
+
+    for i in range(3):
+        for j in range(3):
+            numbers = set(get_block(solution, (i * 3, j * 3)))
+            if numbers != set('123456789'):
+                return False
+
+    return True
     pass
 
 
@@ -142,6 +209,19 @@ def generate_sudoku(N: int) -> List[List[str]]:
     >>> check_solution(solution)
     True
     """
+    empty = [['.'] * 9 for i in range(9)]
+    grid = solve(empty)
+
+    for i in range(81 - min(N, 81)):
+        while True:
+            row = random.randint(0, 8)
+            col = random.randint(0, 8)
+
+            if grid[row][col] != '.':
+                grid[row][col] = '.'
+                break
+
+    return grid
     pass
 
 
