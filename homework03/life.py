@@ -30,12 +30,12 @@ class GameOfLife:
 
     def create_grid(self, randomize: bool = False) -> Grid:
         if not randomize:
-            return [[0] * self.cell_width for i in range(self.cell_height)]
+            return [[0] * self.cols for i in range(self.rows)]
 
         grid = []
-        for i in range(self.cell_height):
+        for i in range(self.rows):
             line = []
-            for j in range(self.cell_width):
+            for j in range(self.cols):
                 line.append(random.randint(0, 1))
             grid.append(line)
 
@@ -43,22 +43,22 @@ class GameOfLife:
 
     def get_neighbours(self, cell: Cell) -> Cells:
         cells = []
-        for i in range(max(0, cell[0] - 1), min(self.cell_height, cell[0] + 2)):
-            for j in range(max(0, cell[1] - 1), min(self.cell_width, cell[1] + 2)):
+        for i in range(max(0, cell[0] - 1), min(self.rows, cell[0] + 2)):
+            for j in range(max(0, cell[1] - 1), min(self.cols, cell[1] + 2)):
                 if i != cell[0] or j != cell[1]:
-                    cells.append(self.grid[i][j])
+                    cells.append(self.curr_generation[i][j])
 
         return cells
 
     def get_next_generation(self) -> Grid:
         grid = []
 
-        for i in range(self.cell_height):
+        for i in range(self.rows):
             line = []
-            for j in range(self.cell_width):
+            for j in range(self.cols):
                 creature_count = self.get_neighbours((i, j)).count(1)
 
-                if self.grid[i][j] == 1:
+                if self.curr_generation[i][j] == 1:
                     if 2 <= creature_count <= 3:
                         line.append(1)
                     else:
