@@ -48,11 +48,11 @@ class GameOfLife:
         self.grid = self.create_grid(randomize=True)
 
         running = True
+        self.draw_lines()
         while running:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     running = False
-            self.draw_lines()
 
             # Отрисовка списка клеток
             # Выполнение одного шага игры (обновление состояния ячеек)
