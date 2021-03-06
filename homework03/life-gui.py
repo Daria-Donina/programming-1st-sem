@@ -45,6 +45,11 @@ class GUI(UI):
             x = 0
             y += self.cell_size
 
+    def mouse_click_handler(self) -> None:
+        x, y = pygame.mouse.get_pos()
+        row, col = y // self.cell_size, x // self.cell_size
+        self.life.curr_generation[row][col] = not self.life.curr_generation[row][col]
+
     def run(self) -> None:
         pygame.init()
         clock = pygame.time.Clock()
@@ -52,24 +57,33 @@ class GUI(UI):
         self.screen.fill(pygame.Color('white'))
 
         running = True
+        paused = False
+
         self.draw_lines()
         while running:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     running = False
+                if event.type == KEYDOWN and event.key == K_SPACE:
+                    paused = not paused
+                if event.type == MOUSEBUTTONDOWN and paused:
+                    self.mouse_click_handler()
 
-            if self.life.is_max_generations_exceeded or not self.life.is_changing:
-                running = False
-                continue
+
+            if not paused:
+                if self.life.is_max_generations_exceeded or not self.life.is_changing:
+                    running = False
+                    continue
+                self.life.step()
 
             self.draw_grid()
-            self.life.step()
 
             pygame.display.flip()
             clock.tick(self.speed)
+
         pygame.quit()
 
-game = GameOfLife((10, 15), max_generations=1000)
+game = GameOfLife((10, 15), max_generations=10000)
 gui = GUI(game, cell_size=40)
 
 gui.run()

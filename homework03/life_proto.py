@@ -175,5 +175,5 @@ class GameOfLife:
         return grid
 
 
-game = GameOfLife()
-game.run()
+# game = GameOfLife()
+# game.run()
