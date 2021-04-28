@@ -29,18 +29,36 @@ def hash_object(data: bytes, fmt: str, write: bool = False) -> str:
 
 
 def resolve_object(obj_name: str, gitdir: pathlib.Path) -> tp.List[str]:
-    # PUT YOUR CODE HERE
-    ...
+    if len(obj_name) < 4 or len(obj_name) > 40:
+        raise Exception(f"Not a valid object name {obj_name}")
+
+    dir_path = pathlib.Path(gitdir, 'objects', obj_name[:2])
+    if not dir_path.exists():
+        raise Exception(f"Not a valid object name {obj_name}")
+
+    files = [obj_name[:2] + x.name for x in pathlib.Path(dir_path).glob(f'{obj_name[2:]}*')]
+    if len(files) == 0:
+        raise Exception(f"Not a valid object name {obj_name}")
+
+    return files
 
 
 def find_object(obj_name: str, gitdir: pathlib.Path) -> str:
-    # PUT YOUR CODE HERE
-    ...
+    return pathlib.Path(gitdir, 'objects', obj_name[:2], obj_name[2:])
 
 
 def read_object(sha: str, gitdir: pathlib.Path) -> tp.Tuple[str, bytes]:
-    # PUT YOUR CODE HERE
-    ...
+    path = find_object(sha, gitdir)
+    with open(path, "rb") as file:
+        data = file.read()
+
+    obj_data = zlib.decompress(data)
+
+    header_end = obj_data.find(b"\x00")
+    header = obj_data[:header_end]
+    fmt = header[:header.find(b" ")]
+    data = obj_data[header_end + 1:]
+    return fmt.decode('ascii'), data
 
 
 def read_tree(data: bytes) -> tp.List[tp.Tuple[int, str, str]]:
@@ -49,8 +67,11 @@ def read_tree(data: bytes) -> tp.List[tp.Tuple[int, str, str]]:
 
 
 def cat_file(obj_name: str, pretty: bool = True) -> None:
-    # PUT YOUR CODE HERE
-    ...
+    fmt, data = read_object(obj_name, pathlib.Path(os.environ['GIT_DIR']))
+    if pretty:
+        print(data.decode('ascii'))
+    else:
+        print(data)
 
 
 def find_tree_files(tree_sha: str, gitdir: pathlib.Path) -> tp.List[tp.Tuple[str, str]]:
