@@ -74,11 +74,7 @@ def ls_files(gitdir: pathlib.Path, details: bool = False) -> None:
         print(*[e.name for e in entries], sep='\n')
     else:
         for e in entries:
-            if e.mode == 33188:
-                mode = '100644'
-            else:
-                mode = '100755'
-            print(mode, str(e.sha1.hex()), '0', end='\t')
+            print(int(oct(e.mode)[2:]), str(e.sha1.hex()), '0', end='\t')
             print(e.name)
 
 
@@ -89,8 +85,8 @@ def update_index(gitdir: pathlib.Path, paths: tp.List[pathlib.Path], write: bool
             data = file.read()
         statinfo = os.stat(str(path))
         entry = GitIndexEntry(int(statinfo.st_ctime), 0, int(statinfo.st_mtime), 0, statinfo.st_dev,
-                              statinfo.st_ino, statinfo.st_mode, statinfo.st_uid, statinfo.st_gid,
-                              statinfo.st_size, hash_object(data, 'blob', write).encode(), 0,
+                              statinfo.st_ino, int(oct(statinfo.st_mode)[2:]), statinfo.st_uid, statinfo.st_gid,
+                              statinfo.st_size, bytes.fromhex(hash_object(data, 'blob', write)), 0,
                               str(path.as_posix()))
         entries.append(entry)
     write_index(gitdir, sorted(entries, key=lambda e: e.name))
