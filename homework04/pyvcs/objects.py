@@ -50,9 +50,6 @@ def find_object(obj_name: str, gitdir: pathlib.Path) -> str:
 def read_object(sha: str, gitdir: pathlib.Path) -> tp.Tuple[str, bytes]:
     path = find_object(sha, gitdir)
 
-    if not os.path.exists(path):
-        return
-
     with open(str(path), "rb") as file:
         data = file.read()
 
