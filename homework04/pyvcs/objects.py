@@ -62,23 +62,45 @@ def read_object(sha: str, gitdir: pathlib.Path) -> tp.Tuple[str, bytes]:
 
 
 def read_tree(data: bytes) -> tp.List[tp.Tuple[int, str, str]]:
-    # PUT YOUR CODE HERE
-    ...
+    results = []
+    while len(data) != 0:
+        mode_end = data.find(b' ')
+        mode = int(data[:mode_end])
+        data = data[mode_end + 1:]
+
+        name_end = data.find(b'\x00')
+        name = data[:name_end].decode()
+        data = data[name_end + 1:]
+
+        sha = bytes.hex(data[:20])
+        data = data[20:]
+        results.append((mode, name, sha))
+    return results
 
 
 def cat_file(obj_name: str, pretty: bool = True) -> None:
-    fmt, data = read_object(obj_name, pathlib.Path(os.environ['GIT_DIR']))
+    gitdir = pathlib.Path(os.environ['GIT_DIR'])
+    fmt, data = read_object(obj_name, gitdir)
     if pretty:
-        print(data.decode('ascii'))
+        if fmt == 'blob':
+            print(data.decode())
+        elif fmt == 'tree':
+            tree_content = read_tree(data)
+            for obj in tree_content:
+                print(str(obj[0]).zfill(6), read_object(obj[2], gitdir)[0], obj[2], end='\t')
+                print(obj[1])
+        elif fmt == 'commit':
+            print(commit_parse(data))
     else:
         print(data)
 
 
 def find_tree_files(tree_sha: str, gitdir: pathlib.Path) -> tp.List[tp.Tuple[str, str]]:
-    # PUT YOUR CODE HERE
-    ...
+    fmt, data = read_object(tree_sha, gitdir)
+    if fmt == 'tree':
+        print(data)
+    return [('a', 'b')]
 
 
 def commit_parse(raw: bytes, start: int = 0, dct=None):
-    # PUT YOUR CODE HERE
-    ...
+    return raw.decode()
