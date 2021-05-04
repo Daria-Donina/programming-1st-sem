@@ -34,7 +34,7 @@ def is_detached(gitdir: pathlib.Path) -> bool:
     head = gitdir / "HEAD"
 
     with open(str(head), "r") as f:
-        content = f.read()
+        content = f.read().strip()
 
     return not content.startswith('ref: ')
 

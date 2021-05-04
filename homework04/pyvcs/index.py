@@ -89,4 +89,4 @@ def update_index(gitdir: pathlib.Path, paths: tp.List[pathlib.Path], write: bool
                               statinfo.st_size, bytes.fromhex(hash_object(data, 'blob', write)), 0,
                               str(path.as_posix()))
         entries.append(entry)
-    write_index(gitdir, sorted(entries, key=lambda e: e.name))
+    write_index(gitdir, sorted(read_index(gitdir) + entries, key=lambda e: e.name))

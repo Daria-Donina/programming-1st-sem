@@ -49,7 +49,11 @@ def find_object(obj_name: str, gitdir: pathlib.Path) -> str:
 
 def read_object(sha: str, gitdir: pathlib.Path) -> tp.Tuple[str, bytes]:
     path = find_object(sha, gitdir)
-    with open(path, "rb") as file:
+
+    if not os.path.exists(path):
+        return
+
+    with open(str(path), "rb") as file:
         data = file.read()
 
     obj_data = zlib.decompress(data)
@@ -90,17 +94,24 @@ def cat_file(obj_name: str, pretty: bool = True) -> None:
                 print(str(obj[0]).zfill(6), read_object(obj[2], gitdir)[0], obj[2], end='\t')
                 print(obj[1])
         elif fmt == 'commit':
-            print(commit_parse(data))
+            print(data.decode())
     else:
         print(data)
 
 
 def find_tree_files(tree_sha: str, gitdir: pathlib.Path) -> tp.List[tp.Tuple[str, str]]:
+    result = []
     fmt, data = read_object(tree_sha, gitdir)
-    if fmt == 'tree':
-        print(data)
-    return [('a', 'b')]
+    for file in read_tree(data):
+        if read_object(file[2], gitdir)[0] == "tree":
+            tree = find_tree_files(file[2], gitdir)
+            for blob in tree:
+                name = file[1] + "/" + blob[0]
+            result.append((name, blob[1]))
+        else:
+            result.append((file[1], file[2]))
+    return result
 
 
 def commit_parse(raw: bytes, start: int = 0, dct=None):
-    return raw.decode()
+    return zlib.decompress(raw)
