@@ -8,7 +8,6 @@ from pyvcs.index import GitIndexEntry, read_index
 from pyvcs.objects import hash_object
 from pyvcs.refs import get_ref, is_detached, resolve_head, update_ref
 
-
 def write_tree(gitdir: pathlib.Path, index: tp.List[GitIndexEntry], dirname: str = "") -> str:
     tree_content = b''
     for entry in index:

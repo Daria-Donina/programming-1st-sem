@@ -9,6 +9,7 @@ from pyvcs.objects import hash_object
 
 import code
 
+os.environ["GIT_DIR"] = "GIT_DIR"
 
 class GitIndexEntry(tp.NamedTuple):
     # @see: https://github.com/git/git/blob/master/Documentation/technical/index-format.txt

@@ -8,6 +8,7 @@ from pyvcs.objects import commit_parse, find_object, find_tree_files, read_objec
 from pyvcs.refs import get_ref, is_detached, resolve_head, update_ref
 from pyvcs.tree import commit_tree, write_tree
 
+os.environ["GIT_DIR"] = ".git"
 
 def add(gitdir: pathlib.Path, paths: tp.List[pathlib.Path]) -> None:
     update_index(gitdir, paths, True)
@@ -39,7 +40,7 @@ def checkout(gitdir: pathlib.Path, obj_name: str) -> None:
                 os.remove(entry.name)
 
     path_to_commit = gitdir / "objects" / obj_name[:2] / obj_name[2:]
-    if path_to_commit:
+    if path_to_commit.exists():
         with open(path_to_commit, 'rb') as file:
             raw = file.read()
         data = commit_parse(raw)

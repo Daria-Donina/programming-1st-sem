@@ -9,6 +9,7 @@ import zlib
 from pyvcs.refs import update_ref
 from pyvcs.repo import repo_find
 
+os.environ["GIT_DIR"] = ".git"
 
 def hash_object(data: bytes, fmt: str, write: bool = False) -> str:
     header = f"{fmt} {len(data)}\0".encode()
@@ -49,6 +50,9 @@ def find_object(obj_name: str, gitdir: pathlib.Path) -> str:
 
 def read_object(sha: str, gitdir: pathlib.Path) -> tp.Tuple[str, bytes]:
     path = find_object(sha, gitdir)
+    
+    if not path.exists():
+        return
 
     with open(str(path), "rb") as file:
         data = file.read()

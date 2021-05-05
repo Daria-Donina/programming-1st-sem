@@ -1,7 +1,6 @@
 import pathlib
 import typing as tp
 
-
 def update_ref(gitdir: pathlib.Path, ref: tp.Union[str, pathlib.Path], new_value: str) -> None:
     path = gitdir / ref
     if not path.exists():

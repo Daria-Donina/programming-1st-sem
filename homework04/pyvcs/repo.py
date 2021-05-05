@@ -2,10 +2,11 @@ import os
 import pathlib
 import typing as tp
 
+os.environ["GIT_DIR"] = "GIT_DIR"
 
 def repo_find(workdir: tp.Union[str, pathlib.Path] = ".") -> pathlib.Path:
     workdir = pathlib.Path(workdir).absolute()
-    path = workdir / os.environ['GIT_DIR']
+    path = workdir / os.environ["GIT_DIR"]
     if path.exists():
         return path
     elif workdir == workdir.parent:
