@@ -40,7 +40,7 @@ def checkout(gitdir: pathlib.Path, obj_name: str) -> None:
                 os.remove(entry.name)
 
     path_to_commit = gitdir / "objects" / obj_name[:2] / obj_name[2:]
-    if path_to_commit.exists():
+    if path_to_commit:
         with open(path_to_commit, 'rb') as file:
             raw = file.read()
         data = commit_parse(raw)
